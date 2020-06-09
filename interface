@@ -1,0 +1,177 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+Created on Fri May 29 21:07:38 2020
+
+@author: sahyadri
+"""
+import cx_Freeze
+import pygame, sys
+from pygame.locals import *
+
+black = (0,0,0)
+green = (0,200,0)
+white = (255,255,255)
+red = (200,0,0)
+bright_green = (0,255,0)
+bright_red = (255,0,0)
+gray = (100,100,100)
+yellow = (0,200,200)
+background = (220,220,220)
+click_ia = (150,150,150)
+click_a = (80,80,80)
+
+im = pygame.image.load("/home/sahyadri/Downloads/images.jpeg")
+pygame.display.set_icon(im)
+
+user = "User"
+editor = "Editor"
+vari = True
+
+def button(msg,x,y,w,h,ic,ac,font_name,font_size):
+    mouse = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+    if x<=mouse[0]<=x+w and y<=mouse[1]<=y+h:
+        pygame.draw.rect(window,ac,(x,y,w,h),2)
+        message_display(msg,(x+(w/2)),(y+(h/2)),black,font_name,font_size)
+        if mouse_click[0]==True:
+            global vari
+            vari = False
+            #if user == msg:
+                #go to user phase
+            #elif editor == msg:
+                #go to editor phase
+            
+
+    else:
+        pygame.draw.rect(window,ic,(x,y,w,h),width=2)
+        message_display(msg,(x+(w/2)),(y+(h/2)),black,font_name,font_size)
+        
+def exit_button(msg,x,y,w,h,ic,ac,font_name,font_size):
+    mouse = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+    if x<=mouse[0]<=x+w and y<=mouse[1]<=y+h:
+        pygame.draw.rect(window,ac,(x,y,w,h),2)
+        message_display(msg,(x+(w/2)),(y+(h/2)),black,font_name,font_size)
+        if mouse_click[0]==True:
+            pygame.quit()
+    else:
+        pygame.draw.rect(window,ic,(x,y,w,h),width=2)
+        message_display(msg,(x+(w/2)),(y+(h/2)),black,font_name,font_size)
+        
+def box_input(x,y,w,h):
+    global text,active
+    text = ""
+    active = False
+    mouse = pygame.mouse.get_pos()
+    mouse_click = pygame.mouse.get_pressed()
+    if x<=mouse[0]<=x+w and y<=mouse[1]<=y+h:
+        if mouse_click[0]==True:
+            active = True
+    pygame.event.pump()
+    key_press = pygame.key.get_pressed()
+    if active ==True:
+        if key_press[pygame.K_BACKSPACE]==True:
+            text = text[:-1]
+        elif key_press[pygame.K_RETURN]==True:
+            active = False
+        else:
+            text += pygame.TEXTINPUT
+            
+    message_display(text, x, y, black, "ubuntu", 20)
+    pygame.draw.rect(window,white,(x,y,w,h))
+
+    
+    
+        
+def text_objects(text, colour):
+    textSurface = font.render(text, True, colour)
+    return textSurface, textSurface.get_rect()
+
+def message_display(text,x,y,colour,font_name,font_size):
+    TextSurf, TextRect = text_objects(text, colour)
+    TextRect.center = (x,y)
+    window.blit(TextSurf, TextRect)
+    font = pygame.font.SysFont(font_name, 20)
+    
+    pygame.display.update()
+    
+pygame.init()
+window = pygame.display.set_mode((800,800))
+window.fill(background)
+
+pygame.display.set_caption("Hopper")
+#background = pygame.image.load("/home/sahyadri/Downloads/crab.jpeg")
+#background = pygame.transform.scale(background,(500,500))
+
+font = pygame.font.SysFont('dejavusansmono', 20) #NEEDS CHANGING
+pygame.display.update()
+
+def main_menu():
+    run = True
+    while run==True:
+        pygame.time.delay(100)
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                run = False
+              
+        
+        button("User",150,450,175,50,click_ia,click_a,'dejavusansmono',20)
+        button("Editor",450,450,175,50,click_ia,click_a,'dejavusansmono',20)
+        pygame.display.update()
+        message_display("Name of Application Here",400,250,black,'ubuntu',100)
+        
+        if vari == False:
+            break
+        
+        pygame.display.update()
+        
+def user():
+    run1 = True
+    while run1:
+         for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                run1=False
+        
+         box_input(100, 100, 140, 32)   
+         pygame.display.update()
+                     
+#def editor():
+        
+
+def image_screen():
+    run_t=True
+    x = 0
+    y = 0
+    velocity = 5
+    while run_t==True:
+        pygame.time.delay(100)
+        window.fill(black)
+        im = pygame.image.load("/home/sahyadri/Downloads/wd2.jpg")
+        
+        for event in pygame.event.get():
+            if event.type==pygame.QUIT:
+                run_t = False
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_DOWN:
+                    y -= velocity
+                elif event.key == pygame.K_UP:
+                    y += velocity
+                elif event.key == pygame.K_RIGHT:
+                    x -= velocity
+                elif event.key == pygame.K_LEFT:
+                    x += velocity
+                    
+        window.blit(im,(x,y))
+        pygame.draw.line(window,bright_green,(295,400),(305,400),1)
+        pygame.draw.line(window,bright_green,(300,395),(300,405),1)
+        button("Exit",20,20,100,50,click_ia,click_a,'dejavusansmono',20)
+        pygame.display.update()
+                    
+main_menu()
+window.fill(background)
+user()
+image_screen()
+
+
+pygame.quit()
