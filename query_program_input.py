@@ -132,21 +132,22 @@ while True:
         break
     else:
         print('invalid answer')
-        
-print('Gaia dr1 catalogue')
-
-MinVmag = input('(INT ONLY) Input minimum value of Vmag (skippable)',)
-while True:
-    MaxVmag = int(input('(INT ONLY) Input maximum value of Vmag',))
-    if type(MaxVmag)==int:
-        break
-    else:
-        print("invalid entry")
-if MinVmag!='':
-    MinVmag = int(MinVmag)    
+           
 
 run_count = 0
 while g_run:
+    print('Gaia dr1 catalogue')
+
+    MinVmag = input('(INT ONLY) Input minimum value of Vmag (skippable)',)
+    while True:
+        MaxVmag = int(input('(INT ONLY) Input maximum value of Vmag',))
+        if type(MaxVmag)==int:
+            break
+        else:
+            print("invalid entry")
+    if MinVmag!='':
+        MinVmag = int(MinVmag) 
+
     if MinVmag=='':
         filter_input = "<{}".format(MaxVmag)
     else:
