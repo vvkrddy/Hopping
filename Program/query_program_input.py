@@ -205,6 +205,9 @@ for file in glob.glob("tycho_*.csv"):
 name_list.sort()
 t = pd.concat([pd.read_csv(i) for i in name_list])
 t.to_csv('tycho.csv')
+
+for file_name in name_list:
+    os.remove(file_name)
             
 #print('Done')
 #print('\n')
