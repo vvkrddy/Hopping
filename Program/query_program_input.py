@@ -17,8 +17,7 @@ from astropy.io import ascii
 from astropy import units as u
 from astropy.coordinates import SkyCoord, get_constellation
 import pandas as pd 
-#import kaggle
-from astroquery.gaia import Gaia
+import kaggle
 import glob, os
 
 print('Downloading constellation_borders.csv...')
@@ -122,6 +121,25 @@ cross_catalog.remove_columns("Bayer")
 cross_catalog['BayerConst'] = bayer_const
 cross_catalog.write("CrossCatalog.csv",format='csv',overwrite="True")
 
+ccat = pd.read_csv('CrossCatalog.csv')
+ccat = pd.DataFrame(ccat)
+ccat["HIP"].fillna("0", inplace = True)
+miss_index = np.where(ccat['HIP']=='0')[0]
+hd_missing = np.array(ccat['HD'][miss_index])
+from astroquery.simbad import Simbad
+hip=[]#will containt all missing values
+for items in hd_missing:
+    ident_table = np.array(Simbad.query_objectids("HD "+str(items)))
+    ident_table = np.array([x[0].decode('utf8') for x in ident_table])
+    if any(['HIP' in x.split()[0] for x in ident_table]):
+        ind = np.where(['HIP' in x.split()[0] for x in ident_table])[0]
+        hip.append(ident_table[ind][0].split()[1])
+    else:
+        hip.append('0')
+        
+cross_catalog['HIP'][miss_index] = hip
+cross_catalog.write("CrossCatalog.csv",format='csv',overwrite="True")
+
 print('Tycho-2 Catalogue')
 
 run_count = 0
@@ -209,18 +227,18 @@ t.to_csv('tycho.csv')
 for file_name in name_list:
     os.remove(file_name)
             
-#print('Done')
-#print('\n')
-#g_status = input('Gaia - Do you want to skip? (y/n)',)
-#while True:
-#    if g_status == "y":
-#        g_run = False
-#        break
-#    elif g_status == "n":
-#        g_run = True
-#        break
-#    else:
-#        print('invalid answer')
+print('Done')
+print('\n')
+g_status = input('GSC - Do you want to skip? (y/n)',)
+while True:
+    if g_status == "y":
+        g_run = False
+        break
+    elif g_status == "n":
+        g_run = True
+        break
+    else:
+        print('invalid answer')
            
 
 #run_count = 0
