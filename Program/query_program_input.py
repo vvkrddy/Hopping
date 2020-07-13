@@ -15,7 +15,6 @@ from astropy.io import ascii
 from astropy import units as u
 from astropy.coordinates import SkyCoord, get_constellation
 import pandas as pd 
-import kaggle
 import glob, os
 
 
@@ -26,6 +25,7 @@ catalog = Vizier.get_catalogs("VI/49")[1]#This selects the 2nd of three tables t
 catalog.remove_columns(['cst','type'])
 coords = SkyCoord(catalog['RAJ2000'],catalog['DEJ2000'],unit="deg")
 const = coords.get_constellation()
+const = ['Bootes' if x=='Boötes' else x for x in const]#fixing for the unicode problem
 catalog.add_column(const,name="Constellation", index = 2)
 catalog.write("constellation_borders.csv",format="csv",overwrite="True")
 print('\n')
@@ -49,8 +49,12 @@ result_table.remove_column('FLUX_B')
 
 coords = SkyCoord(result_table['RAJ2000'],result_table['DEJ2000'],unit="deg")
 const = coords.get_constellation()
+const = ['Bootes' if x=='Boötes' else x for x in const]#fixing for the unicode problem
 const_abr = coords.get_constellation(short_name = "True")
 result_table.add_column(const,name="Constellation", index = 2)
+m = ['M {}'.format(i+1) for i in range(len(const))]
+result_table.add_column(m,name='ID (for resolver)', index = 0)
+
 
 otype = result_table['OTYPE_3']
 internal_id = ['{}_{}_M{}'.format(otype[i],const_abr[i],str(i+1)) for i in range(len(const))]
@@ -65,7 +69,6 @@ print('Done')
 print('\n')
 print('Downloading NGC catalogue...')
 
-#CHANGE GET_CONSTELLATION EQUINOX FROM B1875 TO 2000
 v = Vizier(columns = ['Name','Type','mag','RA (deg)','Dec (deg)'])#Columns added to table
 v.ROW_LIMIT = -1
 result_table = v.get_catalogs("VII/118/ngc2000")[0]
@@ -77,6 +80,7 @@ result_table['Type'] = np.array(['Gal' if x=='Gx' else 'OpC' if x=='OC' else 'Gl
 #adding constellation names
 coords = SkyCoord(result_table['_RAJ2000'],result_table['_DEJ2000'],unit="deg")
 const = coords.get_constellation()
+const = ['Bootes' if x=='Boötes' else x for x in const]#fixing for the unicode problem
 const_abr = coords.get_constellation(short_name = "True")
 result_table.add_column(const,name="Constellation", index = 2)
 
@@ -183,6 +187,7 @@ while run:
     #Adding constellation names
     coords = SkyCoord(catalog_stars['_RAJ2000'],catalog_stars['_DEJ2000'],unit="deg")
     const = coords.get_constellation()
+    const = ['Bootes' if x=='Boötes' else x for x in const]#fixing for the unicode problem
     const_abr = coords.get_constellation(short_name = "True")
     
     catalog_stars.add_column(const,name="Constellation", index = 0)
@@ -261,6 +266,7 @@ catalog_stars.remove_rows(ind)
 #adding constellation names
 coords = SkyCoord(catalog_stars['_RAJ2000'],catalog_stars['_DEJ2000'],unit="deg")
 const = coords.get_constellation()
+const = ['Bootes' if x=='Boötes' else x for x in const]#fixing for the unicode problem
 const_abr = coords.get_constellation(short_name = "True")
 bv = np.array(catalog_stars['BTmag'])-np.array(catalog_stars['VTmag'])
 catalog_stars.add_column(bv,name='BT-VT',index=6)
