@@ -9,6 +9,8 @@ Created on Thu Jul  2 15:42:35 2020
 
 from astroquery.vizier import Vizier
 from astroquery.simbad import Simbad
+import requests
+from bs4 import BeautifulSoup
 import numpy as np
 from astropy.table import Table, vstack
 from astropy.io import ascii
@@ -61,6 +63,17 @@ otype = result_table['TYPE']
 internal_id = ['{}_{}_M{}'.format(otype[i], const_abr[i], str(i + 1)) for i in range(len(const))]
 result_table.add_column(internal_id, name="Internal ID Number", index=0)
 
+#Adding common names of the messier objects
+link = requests.get('https://en.wikipedia.org/wiki/Messier_object')
+soup = BeautifulSoup(link.content,'html.parser')
+table = soup.find_all('table',attrs={"class":"wikitable sortable"})[0]
+names = []    
+name_rows = table.find_all('td')[1::9]
+for items in name_rows:
+    names.append(items.get_text())
+
+result_table.add_column(names,name="Common Name",index=3)
+
 result_table.write("messier_objects.csv", format="csv", overwrite="True")  # creates a csv file
 
 Simbad.reset_votable_fields()  # renders the prev changes to simbad class temporary.
@@ -68,7 +81,6 @@ print('Done - Messier objects\n')
 
 print('Downloading NGC.csv...')
 
-# CHANGE GET_CONSTELLATION EQUINOX FROM B1875 TO 2000
 v = Vizier(columns=['Name', 'Type', 'mag', 'RA (deg)', 'Dec (deg)'])  # Columns added to table
 v.ROW_LIMIT = -1
 result_table = v.get_catalogs("VII/118/ngc2000")[0]
@@ -298,7 +310,7 @@ while run:
         catalog_stars.remove_rows(ind)
 
         # adding constellation names
-        coords = SkyCoord(catalog_stars['RAJ2000'], catalog_stars['DEJ2000'], unit="deg")
+        coords = SkyCoord(catalog_stars['_RAJ2000'], catalog_stars['_DEJ2000'], unit="deg")
         const = coords.get_constellation()
         const = ['Bootes' if x == 'Boötes' else x for x in const]  # fixing for the unicode problem
         const_abr = coords.get_constellation(short_name="True")
@@ -309,7 +321,7 @@ while run:
         internal_id = ["Str_{}_{:08d}".format(const_abr[i], i + last_id + 1) for i in
                        range(len(catalog_stars['_RAJ2000']))]
         catalog_stars.add_column(internal_id, name="Internal ID Number", index=0)
-        catalog_stars.add_column(const, name="Constellation", index=0)
+        catalog_stars.add_column(const, name="Constellation", index=1)
 
         catalog_stars.rename_column('_RAJ2000', 'RAJ2000')
         catalog_stars.rename_column('_DEJ2000', 'DEJ2000')
