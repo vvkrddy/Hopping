@@ -249,6 +249,7 @@ while run:
     ccat = ccat.loc[~ccat.HIP.duplicated(keep='first')]
     ttable.insert(4, "Bayer", np.zeros(len(ttable['RAJ2000'])))
     ttable['Bayer'] = ttable.HIP.map(ccat.set_index('HIP').BayerConst, na_action="ignore")
+    del ttable['Unnamed: 0']
     if run_count == 1:
         ttable.to_csv('tycho-1.csv', index=False)
     else:
