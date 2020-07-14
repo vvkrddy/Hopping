@@ -238,6 +238,8 @@ while run:
     ttable.insert(1, "Name", np.zeros(len(ttable['TYC'])))
     names_table["HIP"] = pd.to_numeric(names_table['HIP'], errors='coerce')
     ttable['Name'] = ttable.HIP.map(names_table.set_index('HIP').Name)
+    ttable['Name']= ttable['Name'].fillna('')
+    print(ttable['Name'])
     ttable.to_csv('tycho_{}.csv'.format(run_count))
 
     # The cross cataloguing part
