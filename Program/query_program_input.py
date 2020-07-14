@@ -70,8 +70,10 @@ table = soup.find_all('table',attrs={"class":"wikitable sortable"})[0]
 names = []    
 name_rows = table.find_all('td')[1::9]
 for items in name_rows:
-    names.append(items.get_text())
-
+    if items.get_text()=='–\n':
+        names.append('')
+    else:
+        names.append(items.get_text().strip('\n'))
 result_table.add_column(names,name="Common Name",index=3)
 
 result_table.write("messier_objects.csv", format="csv", overwrite="True")  # creates a csv file
@@ -238,7 +240,7 @@ while run:
     ttable.insert(1, "Name", np.zeros(len(ttable['TYC'])))
     names_table["HIP"] = pd.to_numeric(names_table['HIP'], errors='coerce')
     ttable['Name'] = ttable.HIP.map(names_table.set_index('HIP').Name)
-    ttable['Name']= ttable['Name'].fillna('')
+    ttable['Name']= ttable['Name'].fillna('-')
     ttable.to_csv('tycho_{}.csv'.format(run_count))
 
     # The cross cataloguing part
