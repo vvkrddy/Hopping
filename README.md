@@ -16,12 +16,21 @@ The required input will be asked for by the program. The recommended modes are:
 1)generate the first file by leaving the minimum blank and maximum as 6
 2)generate the second file by putting minimum as 6 and max 9.
 3)third file same way from 9 to 10.5.
+<<<<<<< HEAD
 
 After this, the program will automatically procure the tycho-2 data between vmag 10.5 and 12
+=======
+>>>>>>> bc1cb172a9a116920e37f46543b5cc010aa6d188
 
 NOTE : These files will take some time to download, especially the last one which is quite large. If you dont want to run the last part, the option is available. At the 
 end of each run the tycho download, the program will ask you if you'd like to proceed further. Once you are done simply tell the program you dont want to continue.
 
+<<<<<<< HEAD
 At the end of the program, the multiple files will be combined, which may also take time.
+=======
+After this, the tycho-2 database will be download from vmag 10.5 to 12
+
+At the end of the program, the multiple files will be combined, which may also take time. Some warning messages may also pop up - these dont affect the final files.
+>>>>>>> bc1cb172a9a116920e37f46543b5cc010aa6d188
 
 All the downloaded files will be in your working directory
