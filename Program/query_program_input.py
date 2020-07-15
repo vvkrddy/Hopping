@@ -168,7 +168,7 @@ for items in hd_missing:
         hip.append(ident_table[ind][0].split()[1])
     else:
         hip.append('0')
-
+        
 cross_catalog['HIP'][miss_index] = hip
 cross_catalog.write("CrossCatalog.csv", format='csv', overwrite="True")
 
@@ -252,6 +252,10 @@ while run:
     ccat = ccat.loc[~ccat.HIP.duplicated(keep='first')]
     ttable.insert(4, "Bayer", np.zeros(len(ttable['RAJ2000'])))
     ttable['Bayer'] = ttable.HIP.map(ccat.set_index('HIP').BayerConst, na_action="ignore")
+    ttable['Bayer']= ttable['Bayer'].fillna('')
+    if maxV==6:
+        ttable['Bayer']=np.where(ttable.Bayer=='',ttable.HD.map(ccat.set_index('HD').BayerConst, na_action="ignore"),ttable.Bayer)
+        ttable['Bayer']=ttable['Bayer'].fillna('')
     del ttable['Unnamed: 0']
     if run_count == 1:
         ttable.to_csv('tycho-1.csv', index=False)
