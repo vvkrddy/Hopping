@@ -71,12 +71,13 @@ names = []
 name_rows = table.find_all('td')[1::9]
 for items in name_rows:
     if items.get_text()=='–\n':
-        names.append('')
+        names.append('-')
     else:
         names.append(items.get_text().strip('\n'))
 result_table.add_column(names,name="Common Name",index=3)
 
-result_table.write("messier_objects.csv", format="csv", overwrite="True")  # creates a csv file
+
+result_table.write("messier_objects.csv", format="csv", overwrite="True")# creates a csv file
 
 Simbad.reset_votable_fields()  # renders the prev changes to simbad class temporary.
 print('Done - Messier objects\n')
