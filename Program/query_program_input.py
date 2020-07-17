@@ -34,6 +34,16 @@ catalog.write("constellation_borders.csv", format="csv", overwrite="True")
 print('Done - Constellation borders\n')
 
 print('Downloading messier_objects.csv...')
+
+#Download magnitdue data from astropixels/SEDS
+page = requests.get("http://astropixels.com/messier/messiercat.html")
+soup = BeautifulSoup(page.content,'html.parser')
+table = soup.find_all('tbody')[0]
+rows = table.find_all('tr')
+mag = []
+for items in rows:
+    mag.append(items.find_all('td')[3].get_text())
+
 # The next three lines are to simplify the output table
 Simbad.reset_votable_fields()
 Simbad.remove_votable_fields('coordinates')
@@ -75,6 +85,7 @@ for items in name_rows:
     else:
         names.append(items.get_text().strip('\n'))
 result_table.add_column(names,name="Common Name",index=3)
+result_table.add_column(mag,name="V (from SEDS)",index=8)
 
 
 result_table.write("messier_objects.csv", format="csv", overwrite="True")# creates a csv file
@@ -84,7 +95,7 @@ print('Done - Messier objects\n')
 
 print('Downloading NGC.csv...')
 
-v = Vizier(columns=['Name', 'Type', 'mag', 'RA (deg)', 'Dec (deg)'])  # Columns added to table
+v = Vizier(columns=['Name', 'Type', 'mag','RA (deg)', 'Dec (deg)'])  # Columns added to table
 v.ROW_LIMIT = -1
 result_table = v.get_catalogs("VII/118/ngc2000")[0]
 
@@ -93,6 +104,7 @@ result_table['Name'] = np.array(['IC ' + x[1:] if x[0] == 'I' else 'NGC ' + x fo
 result_table['Type'] = np.array([
                                     'Gal' if x == 'Gx' else 'OpC' if x == 'OC' else 'GlC' if x == 'Gb' else 'PN' if x == 'Pl' else 'Str' if x == '*' or x == 'D*' or x == '***' else '-' if x == '' or x == '-' or x == '?' else x
                                     for x in result_table['Type']])
+result_table['Name'] = [" ".join(x.split()) for x in result_table['Name']]
 
 # A dding constellation names
 coords = SkyCoord(result_table['_RAJ2000'], result_table['_DEJ2000'], unit="deg")
@@ -134,6 +146,27 @@ ntable = pd.read_csv('NGC.csv')
 ntable = pd.DataFrame(ntable)
 ntable.insert(2, "Common Name", np.zeros(len(ntable['RAJ2000'])))
 ntable['Common Name'] = ntable.Name.map(ccat.set_index('Name').Object, na_action="ignore")
+ntable['Common Name'] = ntable['Common Name'].fillna('-')
+
+#Changing the coordinates of messier objects to refernece SIMBAD for uniformity
+find_res = np.array([x.find('M') for x in ntable['Common Name']])
+pos = np.where(find_res!=-1)[0]
+rd = [x for x in ntable['Name'][pos]]
+Simbad.TIME_OUT = -1
+Simbad.reset_votable_fields()
+Simbad.ROW_LIMIT = 100000
+Simbad.remove_votable_fields('coordinates')
+Simbad.add_votable_fields('ra(d;A;ICRS;J2000;2000)', 'dec(d;D;ICRS;J2000;2000)')
+names = np.array(rd)
+radec = Simbad.query_objects(names)
+ra = [x for x in radec['RA_d_A_ICRS_J2000_2000']]
+dec = [x for x in radec['DEC_d_D_ICRS_J2000_2000']]
+Simbad.reset_votable_fields()
+pos = [x for x in pos]
+
+ntable.loc[pos,'RAJ2000'] = ra
+ntable.loc[pos,'DEJ2000'] = dec
+
 ntable.to_csv('NGC.csv')
 ntable = Table.read('NGC.csv')
 ntable.remove_columns(['col0'])
