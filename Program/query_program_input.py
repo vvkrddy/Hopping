@@ -183,7 +183,7 @@ v = Vizier(columns=['HD', 'TYC', 'HIP', 'Vmag', 'Fl', 'Bayer', 'Cst'])
 v.ROW_LIMIT = -1
 v.TIMEOUT = 1000
 cross_catalog = v.get_catalogs('IV/27A/catalog')[0]
-bayer_const = ['{} {}'.format(x['Bayer'], x['Cst']) for x in cross_catalog]
+bayer_const = ['{} {}'.format(x['Bayer'], x['Cst']) if len(x['Bayer'])!=0 else '{} {}'.format(x['Fl'], x['Cst']) for x in cross_catalog]
 cross_catalog.remove_columns("Bayer")
 cross_catalog['BayerConst'] = bayer_const
 cross_catalog.write("CrossCatalog.csv", format='csv', overwrite="True")
